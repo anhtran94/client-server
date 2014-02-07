@@ -1,0 +1,62 @@
+When the client connects to the server, the server sends a greeting:
+protocol version number, space, nplaces, space, nthings, CRLF.
+
+The client then sends the user's handle, followed by CRLF.  The handle must
+be 50 characters or fewer, and may not contain any bytes between 0 and 31
+inclusive nor between 127 and 159 inclusive nor the byte 255.
+
+
+Information from the server to the client is on lines terminated by CRLF,
+with the first token identifying the kind of information line.  Succeeding
+parameters where indicated are space-separated, and are usually integers (but
+possibly negative when they refer to objects).  The "handle" parameter is
+special, being from the above-specified alphabet and extending to the rest
+of the line regardless of spaces.
+
+loc n -- your user is now at location n, and this location should be
+	described.
+here n -- object number n is at your location.
+arr n -- object n (negative indicates a person) has just arrived at your
+	user's location.
+dep n -- object n (negative indicates a person) has just left from your
+	user's location.
+poked n -- you have been "poked" by person n (which will be negative).
+ib -- in response to 'inventory' command, marks the beginning of the inventory
+	list.
+i n -- indicates one item of the 'inventory'.
+ie -- marks the end of the inventory list.
+ok -- the requested 'get' or 'drop' or 'poke' command succeeded.
+ng -- the requested 'get' command failed.
+nd -- the requested 'drop' command failed.
+np -- the requested 'poke' command failed.
+name n handle -- indicates (for future reference) that the given user
+	number now corresponds to the given handle (name).  User numbers are
+	negative thing numbers.
+quit n -- indicates (for future reference) that the given user number no
+	longer exists.
+error string -- internal error message which should be displayed.
+
+NEW: You will be adding:
+said n string -- person n (which will be negative) has said string
+
+Note that when a client disconnects, all objects held by that client get
+deposited at the location the person was at, and that person departs -- the
+server implements this.
+
+
+Commands from the user to the server are on lines terminated by CRLF, with
+the first token identifying the kind of command.  Succeeding parameters where
+indicated are space-separated, and are non-negative integers unless indicated.
+
+go n -- this user is moving to location 'n'.  Server responds with "loc n"
+	and zero or more "here" lines (as well as updating its own records and
+	possibly sending notifications to other clients).
+get n -- user says to get item 'n'.
+drop n -- user says to drop item 'n'.
+poke n -- user says to poke person 'n'.  'n' can be positive or negative, and
+	is construed as referring to person -abs(n).
+inv -- user requests inventory listing
+descr -- describe current location (output as in "go", but does not move user)
+
+NEW: You will be adding:
+say string -- user says string
